@@ -34,4 +34,29 @@ private:
     volatile bool running;
 };
 
+class ffavMutex {
+public:
+    ffavMutex();
+    virtual ~ffavMutex();
+    
+    bool lockMutex();
+    bool unlockMutex();
+    
+protected:
+    pthread_mutex_t mtx;
+};
+
+class ffavCondition {
+public:
+    ffavCondition();
+    virtual ~ffavCondition();
+    
+    bool waitCond();
+    bool raiseCond();
+    
+protected:
+    pthread_cond_t cond;
+    pthread_mutex_t mtx;
+};
+
 #endif

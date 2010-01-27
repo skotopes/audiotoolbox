@@ -26,6 +26,9 @@ public:
     virtual ~ffavPushPull();
     virtual size_t push(int16_t *data, size_t len)=0;
     virtual size_t pull(int16_t *data, size_t len)=0;
+    virtual bool resetBuffer()=0;
+    virtual bool pauseBuffer()=0;
+    virtual bool resumeBuffer()=0;
 };
 
 #endif

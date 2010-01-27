@@ -50,15 +50,4 @@ public:
                     { return push_data((uint8_t*)data, len*2); };
 };
 
-class ffavFileRingS16: private ffavRing, public ffavPushPull
-{
-public:
-    ffavFileRingS16(size_t s): ffavRing(s*2) {};
-    virtual ~ffavFileRingS16() {};
-    inline size_t pull(int16_t *data, size_t len)
-                    { return pull_data((uint8_t*)data, len*2); };
-    inline size_t push(int16_t *data, size_t len)
-                    { return push_data((uint8_t*)data, len*2); };
-};
-
 #endif // APRING_H

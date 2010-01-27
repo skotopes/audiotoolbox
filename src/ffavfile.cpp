@@ -10,7 +10,8 @@
 #include "ffavfile.h"
 
 ffavFile::ffavFile(ffavPushPull *p_obj):
-    aFormatCtx(NULL), decoder(), ppObj(NULL), audioStream(-1), myppObj(true)
+    aFormatCtx(NULL), decoder(), ppObj(NULL), 
+    audioStream(-1), myppObj(true), eofed(false)
 {
     if (p_obj)
     {
@@ -20,7 +21,8 @@ ffavFile::ffavFile(ffavPushPull *p_obj):
 }
 
 ffavFile::ffavFile(const ffavFile&):
-    aFormatCtx(NULL), decoder(), ppObj(NULL), audioStream(-1), myppObj(true)
+    aFormatCtx(NULL), decoder(), ppObj(NULL), 
+    audioStream(-1), myppObj(true), eofed(false)
 {
     throw ffavError("ffavFile: object copy is not allowed");
 }
@@ -83,6 +85,8 @@ size_t ffavFile::pull(int16_t *data, size_t len)
 void ffavFile::run()
 {
     AVPacket packet;
+
+    ppObj->resumeBuffer();
     
     while (av_read_frame(aFormatCtx, &packet) == 0)
     {
@@ -93,4 +97,7 @@ void ffavFile::run()
         
         av_free_packet(&packet);
     }
+    
+    eofed = true;
+    ppObj->pauseBuffer();
 }

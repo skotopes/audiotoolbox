@@ -14,6 +14,72 @@
 #include "ffavcodec.h"
 #include "ffavthread.h"
 
+class ffavFileRingS16: private ffavRing, public ffavPushPull
+{
+public:
+    ffavFileRingS16(size_t s): 
+        ffavRing(s*2), paused(false), 
+        w_req(0), r_req(0), r_cond(), w_cond() {};
+
+    virtual ~ffavFileRingS16() {};
+
+    inline size_t pull(int16_t *data, size_t len)
+    {
+        if (len*2 > readSpace() && !paused)
+        {
+            r_req = len;
+            r_cond.waitCond();
+        }
+        size_t ret = pull_data((uint8_t*)data, len*2);
+        if (w_req > 0 && (w_req*2) < writeSpace())
+        {
+            w_req = 0;
+            w_cond.raiseCond();
+        }
+        return ret;
+    };
+    inline size_t push(int16_t *data, size_t len)
+    {
+        if (len*2 > writeSpace())
+        {
+            w_req = len;
+            w_cond.waitCond();
+        }
+        size_t ret = push_data((uint8_t*)data, len*2);
+        if (r_req > 0 && r_req*2 < readSpace())
+        {
+            r_req = 0;
+            r_cond.raiseCond();
+        }
+        return ret; 
+    };
+
+    inline bool resetBuffer()
+    {
+        reset();
+        w_cond.raiseCond();
+        r_cond.raiseCond();
+        return true; 
+    };
+    inline bool pauseBuffer()
+    {
+        paused = true;
+        r_cond.raiseCond();
+        return true;
+    };
+    
+    inline bool resumeBuffer()
+    {
+        paused = false;
+        return true;
+    };
+
+private:
+    bool paused;
+    volatile size_t w_req, r_req;
+    ffavCondition r_cond, w_cond;
+};
+
 class ffavFile: public ffavThread
 {
 public:
@@ -24,6 +90,9 @@ public:
     
     int openFile(char *f_name);
     size_t pull(int16_t *data, size_t len);
+    
+    inline double isEOF()
+        { return eofed; };
     
     inline double getDurationSec()
         { return aFormatCtx->duration/1000000.0; };
@@ -53,7 +122,7 @@ private:
     ffavPushPull *ppObj;
     ffavDecoder decoder;
     int audioStream;
-    bool myppObj;
+    bool myppObj, eofed;
 };
 
 #endif

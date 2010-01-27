@@ -69,9 +69,7 @@ int main(int argc, char **argv)
     {
         return 2;
     }
-    
-    sleep(1);
-    
+        
     histogram h(width, heigh);
     h.buildImage(&f);
     h.saveImage(to_file);

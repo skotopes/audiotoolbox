@@ -67,3 +67,63 @@ void *ffavThread::aCallback(void *data)
     
     pthread_exit(NULL);
 }
+
+ffavMutex::ffavMutex():
+    mtx()
+{
+    pthread_mutex_init(&mtx, NULL);
+}
+
+ffavMutex::~ffavMutex()
+{
+    pthread_mutex_destroy(&mtx);
+}
+
+bool ffavMutex::lockMutex()
+{
+    if (pthread_mutex_lock(&mtx) != 0)
+        return false;
+
+    return true;
+}
+
+bool ffavMutex::unlockMutex()
+{
+    if (pthread_mutex_unlock(&mtx) != 0)
+        return false;
+    
+    return true;
+}
+
+ffavCondition::ffavCondition():
+    cond(), mtx()
+{
+    pthread_mutex_init(&mtx, NULL);
+    pthread_cond_init(&cond, NULL);
+}
+
+ffavCondition::~ffavCondition()
+{
+    pthread_cond_destroy(&cond);
+    pthread_mutex_destroy(&mtx);
+}
+
+bool ffavCondition::waitCond()
+{
+    if (pthread_mutex_lock(&mtx) == 0)
+    {
+        pthread_cond_wait(&cond, &mtx);
+        pthread_mutex_unlock(&mtx);
+    }
+    return true;
+}
+
+bool ffavCondition::raiseCond()
+{
+    if (pthread_mutex_lock(&mtx) == 0)
+    {
+        pthread_cond_signal(&cond);
+        pthread_mutex_unlock(&mtx);
+    }
+    return true;
+}
