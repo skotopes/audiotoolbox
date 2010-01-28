@@ -9,7 +9,7 @@
 
 #include <vector>
 #include <math.h>
-#include "lodepng.h"
+#include "../3rd/lodepng.h"
 #include "ffavimage.h"
 
 imageRGBA::imageRGBA(int width, int height):

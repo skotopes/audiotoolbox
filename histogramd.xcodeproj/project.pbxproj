@@ -44,6 +44,7 @@
 		2350529D110F26CB00CC3D1C /* lodepng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lodepng.h; sourceTree = "<group>"; };
 		235052A6110F281500CC3D1C /* ffavimage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffavimage.h; sourceTree = "<group>"; };
 		235052A7110F281500CC3D1C /* ffavimage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ffavimage.cpp; sourceTree = "<group>"; };
+		235EFF7E111158D400A7B957 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +64,7 @@
 		233D26611108BE2A002D0C6A = {
 			isa = PBXGroup;
 			children = (
+				235EFF7D111158C300A7B957 /* stuff */,
 				2350527E110F205C00CC3D1C /* 3rd */,
 				233D27CD1108FF83002D0C6A /* libs */,
 				233D266B1108BE2F002D0C6A /* src */,
@@ -118,6 +120,14 @@
 				2350529D110F26CB00CC3D1C /* lodepng.h */,
 			);
 			path = 3rd;
+			sourceTree = "<group>";
+		};
+		235EFF7D111158C300A7B957 /* stuff */ = {
+			isa = PBXGroup;
+			children = (
+				235EFF7E111158D400A7B957 /* CMakeLists.txt */,
+			);
+			name = stuff;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
