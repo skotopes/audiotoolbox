@@ -29,7 +29,9 @@ private:
 class imageRGBA {
 public:
     imageRGBA(int width, int height);
+    imageRGBA(const imageRGBA&);    
     ~imageRGBA();
+    imageRGBA& operator=(const imageRGBA&);
     
     void drawPoint(int x, int y, pixelRGBA color);
     void drawLine(int x1, int y1, int x2, int y2, pixelRGBA color);

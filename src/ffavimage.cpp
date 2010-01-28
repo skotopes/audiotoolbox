@@ -10,6 +10,8 @@
 #include <vector>
 #include <math.h>
 #include "../3rd/lodepng.h"
+
+#include "ffavbase.h"
 #include "ffavimage.h"
 
 imageRGBA::imageRGBA(int width, int height):
@@ -18,9 +20,21 @@ imageRGBA::imageRGBA(int width, int height):
     iBuff = new uint8_t[w*h*4];
 }
 
+imageRGBA::imageRGBA(const imageRGBA&):
+    w(0), h(0), iBuff(NULL)
+{
+    throw ffavError("imageRGBA: object copy is not allowed");
+}
+
+
 imageRGBA::~imageRGBA()
 {
     delete [] iBuff;
+}
+
+imageRGBA& imageRGBA::operator=(const imageRGBA&)
+{
+    throw ffavError("imageRGBA: object copy is not allowed");
 }
 
 void imageRGBA::drawPoint(int x, int y, pixelRGBA color)
