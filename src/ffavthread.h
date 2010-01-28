@@ -41,22 +41,25 @@ public:
     
     bool lockMutex();
     bool unlockMutex();
+    inline bool isLocked() { return lock_state; };
     
 protected:
     pthread_mutex_t mtx;
+    volatile bool lock_state;
 };
 
-class ffavCondition {
+class ffavCondition: public ffavMutex {
 public:
     ffavCondition();
     virtual ~ffavCondition();
     
     bool waitCond();
     bool raiseCond();
+    inline bool isWaiting() { return wait_state; };
     
 protected:
     pthread_cond_t cond;
-    pthread_mutex_t mtx;
+    volatile bool wait_state;
 };
 
 #endif

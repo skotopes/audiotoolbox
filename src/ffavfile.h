@@ -25,32 +25,44 @@ public:
 
     inline size_t pull(int16_t *data, size_t len)
     {
+        r_cond.lockMutex();
         if (len*2 > readSpace() && !paused)
         {
             r_req = len;
             r_cond.waitCond();
         }
         size_t ret = pull_data((uint8_t*)data, len*2);
-        if (w_req > 0 && (w_req*2) < writeSpace())
+        r_cond.unlockMutex();
+
+        w_cond.lockMutex();
+        if (w_req > 0 && w_req*2 < writeSpace())
         {
             w_req = 0;
             w_cond.raiseCond();
         }
+        w_cond.unlockMutex();
+        
         return ret/2;
     };
     inline size_t push(int16_t *data, size_t len)
     {
+        w_cond.lockMutex();
         if (len*2 > writeSpace())
         {
             w_req = len;
             w_cond.waitCond();
         }
         size_t ret = push_data((uint8_t*)data, len*2);
+        w_cond.unlockMutex();
+        
+        r_cond.lockMutex();
         if (r_req > 0 && r_req*2 < readSpace())
         {
             r_req = 0;
             r_cond.raiseCond();
         }
+        r_cond.unlockMutex();
+        
         return ret/2; 
     };
 
