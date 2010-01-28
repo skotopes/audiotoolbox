@@ -20,7 +20,7 @@ public:
     histogram(int width, int height);
     ~histogram();
 
-    int buildImage(ffavFile *obj);
+    int buildImage(ffavFile *obj, bool single = false);
     int saveImage(char *file_name);
     
 private:

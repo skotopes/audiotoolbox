@@ -18,14 +18,17 @@ using namespace std;
 int main(int argc, char **argv)
 {    
     int c, width=0, heigh=0;
-    bool verbose = false;
+    bool verbose = false, single = false;
     char *from_file = NULL, *to_file = NULL;
     
-    while ((c = getopt (argc, argv, "vf:t:w:h:")) != -1)
+    while ((c = getopt (argc, argv, "f:t:w:h:vs")) != -1)
         switch (c)
     {
         case 'v':
             verbose = true;
+            break;
+        case 's':
+            single = true;
             break;
         case 'f':
             from_file = optarg;
@@ -49,13 +52,13 @@ int main(int argc, char **argv)
     
     if (from_file == NULL||to_file == NULL) {
         cout << "From file, To file required" << endl
-        << "-f [filename] -t [filename] -w [width] -h [height]" << endl;
+        << "-f [filename] -t [filename] -w [width] -h [height] -s" << endl;
         return 1;
     }
 
     if (width<2 || heigh <2) {
-        cout << "width and height is wrong" << endl
-        << "-f [filename] -t [filename] -w [width] -h [height]" << endl;
+        cout << "width and height is wrong or absent" << endl
+        << "-f [filename] -t [filename] -w [width] -h [height] -s" << endl;
         return 1;
     }
     
@@ -71,7 +74,7 @@ int main(int argc, char **argv)
     }
         
     histogram h(width, heigh);
-    h.buildImage(&f);
+    h.buildImage(&f, single);
     h.saveImage(to_file);
     
     if (verbose) cout 
