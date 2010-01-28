@@ -25,7 +25,7 @@ imageRGBA::~imageRGBA()
 
 void imageRGBA::drawPoint(int x, int y, pixelRGBA color)
 {
-    if (x > w || y > h)
+    if (x >= w || y >= h || x < 0 || y < 0)
     {
         return;
     }   

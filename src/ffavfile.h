@@ -36,7 +36,7 @@ public:
             w_req = 0;
             w_cond.raiseCond();
         }
-        return ret;
+        return ret/2;
     };
     inline size_t push(int16_t *data, size_t len)
     {
@@ -51,7 +51,7 @@ public:
             r_req = 0;
             r_cond.raiseCond();
         }
-        return ret; 
+        return ret/2; 
     };
 
     inline bool resetBuffer()

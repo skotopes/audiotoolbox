@@ -86,9 +86,9 @@ int ffavDecoder::decodePacket(AVPacket *packet, ffavPushPull *obj)
         
         if (out_size > 0)
         {
-            out_size /= 2; // asskingwhy? because 1 int16 = 2 bytes
-            ret += out_size;
+            out_size /= 2;
             obj->push(aBuff, out_size);
+            ret += out_size;
         }
         
         packet->size -= len;
