@@ -68,14 +68,28 @@ int main(int argc, char **argv)
     {
         f.openFile(from_file);
     }
-    catch (...)
+    catch (ffavError &e)
     {
+        e.printMessage();
         return 2;
     }
-        
+    
     histogram h(width, heigh);
-    h.buildImage(&f, single);
-    h.saveImage(to_file);
+    
+    try {
+        h.buildImage(&f, single);
+        h.saveImage(to_file);
+    }
+    catch (ffavError &e) {
+        e.printMessage();
+        return 3;
+    }
+    catch (...) {
+        cout << "Unknown exception catched, " 
+             <<" cannot proceed image" << endl;
+        return 3;
+    }
+
     
     if (verbose) cout 
         << "Duration(sec): " << f.getDurationSec() << endl
