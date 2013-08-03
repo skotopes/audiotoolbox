@@ -3,11 +3,7 @@ project(recoded CXX)
 
 INCLUDE(CheckIncludeFileCXX)
 check_include_file_cxx("libavformat/avformat.h" HAVE_AVFORMAT)
-
-INCLUDE(CheckIncludeFileCXX)
 check_include_file_cxx("libavcodec/avcodec.h" HAVE_AVCODEC)
-
-INCLUDE(CheckIncludeFileCXX)
 check_include_file_cxx("libavutil/avutil.h" HAVE_AVUTIL)
 
 
@@ -21,6 +17,7 @@ if (NOT ${HAVE_AVUTIL})
     MESSAGE(FATAL_ERROR "Could not find libavutil.")
 endif()
 
+ADD_DEFINITIONS(-D__STDC_CONSTANT_MACROS)
 
 set(CMAKE_INSTALL_PREFIX "/usr")
 
