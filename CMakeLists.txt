@@ -1,42 +1,22 @@
 cmake_minimum_required (VERSION 2.6)
-project(recoded CXX)
+include(CheckIncludeFileCXX)
+project(audiotoolbox CXX)
 
-INCLUDE(CheckIncludeFileCXX)
 check_include_file_cxx("libavformat/avformat.h" HAVE_AVFORMAT)
-check_include_file_cxx("libavcodec/avcodec.h" HAVE_AVCODEC)
-check_include_file_cxx("libavutil/avutil.h" HAVE_AVUTIL)
-
-
 if (NOT ${HAVE_AVFORMAT})
-    MESSAGE(FATAL_ERROR "Could not find libavformat.")
+    message(FATAL_ERROR "Could not find libavformat.")
 endif()
+
+check_include_file_cxx("libavcodec/avcodec.h" HAVE_AVCODEC)
 if (NOT ${HAVE_AVCODEC})
-    MESSAGE(FATAL_ERROR "Could not find libavcodec.")
+    message(FATAL_ERROR "Could not find libavcodec.")
 endif()
+
+check_include_file_cxx("libavutil/avutil.h" HAVE_AVUTIL)
 if (NOT ${HAVE_AVUTIL})
-    MESSAGE(FATAL_ERROR "Could not find libavutil.")
+    message(FATAL_ERROR "Could not find libavutil.")
 endif()
 
-ADD_DEFINITIONS(-D__STDC_CONSTANT_MACROS)
+set(CMAKE_CXX_FLAGS_INIT "-std=c++11")
 
-set(CMAKE_INSTALL_PREFIX "/usr")
-
-set( histogramd_src
-    3rd/lodepng.cpp
-    src/ffavbase.cpp
-    src/ffavfile.cpp	
-    src/ffavring.cpp	
-    src/ffavcodec.cpp	
-    src/ffavimage.cpp	
-    src/ffavthread.cpp	
-    src/histogram.cpp
-    src/main.cpp
-)
-
-add_executable(histogramd ${histogramd_src})
-
-target_link_libraries(histogramd avformat avcodec avutil pthread)
-
-set_target_properties(histogramd PROPERTIES VERSION 0.0.3 SOVERSION 0)
-
-install(TARGETS histogramd RUNTIME DESTINATION bin)
+add_subdirectory(src)

@@ -10,25 +10,24 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "ffavfile.h"
-#include "histogram.h"
+#include "avfile.h"
+#include "avimage.h"
+#include "avhistogram.h"
+#include "avexception.h"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {    
     int c, width=0, heigh=0;
-    bool verbose = false, single = false;
+    bool verbose = false;
     char *from_file = NULL, *to_file = NULL;
     
-    while ((c = getopt (argc, argv, "f:t:w:h:vs")) != -1)
+    while ((c = getopt (argc, argv, "f:t:w:h:v")) != -1)
         switch (c)
     {
         case 'v':
             verbose = true;
-            break;
-        case 's':
-            single = true;
             break;
         case 'f':
             from_file = optarg;
@@ -45,60 +44,48 @@ int main(int argc, char **argv)
             
         default:
             cout << "Unknown option: "<< c << endl
-            << "From file, To file and Profile required" << endl
+            << "From file, To file required" << endl
             << "-f [filename] -t [filename]" << endl;
             return 1;
     }
     
     if (from_file == NULL||to_file == NULL) {
         cout << "From file, To file required" << endl
-        << "-f [filename] -t [filename] -w [width] -h [height] -s" << endl;
+        << "-f [filename] -t [filename] -w [width] -h [height]" << endl;
         return 1;
     }
 
     if (width<2 || heigh <2) {
-        cout << "width and height is wrong or absent" << endl
-        << "-f [filename] -t [filename] -w [width] -h [height] -s" << endl;
+        cout << "width and/or height is wrong(<2) or absent" << endl
+        << "-f [filename] -t [filename] -w [width] -h [height]" << endl;
         return 1;
     }
-    
-    ffavFile f;
-    
-    try
-    {
-        f.openFile(from_file);
-    }
-    catch (ffavError &e)
-    {
-        e.printMessage();
-        return 2;
-    }
-    
-    histogram h(width, heigh);
-    
+
     try {
-        h.buildImage(&f, single);
-        h.saveImage(to_file);
-    }
-    catch (ffavError &e) {
-        e.printMessage();
-        return 3;
-    }
-    catch (...) {
-        cout << "Unknown exception catched, " 
-             <<" cannot proceed image" << endl;
+        AVFile file;
+        file.open(from_file);
+
+        AVImageRGBA image(width, heigh);
+
+        AVHistogram histogram(&file, &image);
+
+        file.decoderLoop(&histogram);
+        image.save(to_file);
+
+        if (verbose) {
+            cout << argv[0] << endl
+            << "Duration(sec): " << file.getDurationTime() << endl
+            << "Duration(samples): " << file.getDurationSamples() << endl
+            << "Format bitrate: " << file.getBitrate() << endl
+            << "Codec bitrate: " << file.getCodecBitrate() << endl
+            << "Codec samplerate: " << file.getCodecSamplerate() << endl
+            << "Codec channels: " << file.getCodecChannels() << endl;
+        }
+
+    } catch (AVException &e) {
+        cout << e.what();
         return 3;
     }
 
-    
-    if (verbose) cout 
-        << "Duration(sec): " << f.getDurationSec() << endl
-        << "Duration(samples): " << f.getDurationSamples() << endl
-        << "File Size: " << f.getFileSize() << endl
-        << "Format bitrate: " << f.getBitrate() << endl
-        << "Codec bitrate: " << f.getCodecBitrate() << endl
-        << "Codec samplerate: " << f.getCodecSamplerate() << endl
-        << "Codec channels: " << f.getCodecChannels() << endl;
-    
     return 0;
 }

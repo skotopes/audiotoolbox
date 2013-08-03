@@ -1,6 +1,5 @@
 /*
- *  image.cpp
- *  histogramd
+ *  avimage.cpp
  *
  *  Created by Alexandr Kutuzov on 26.01.10.
  *  Copyright 2010 White Label ltd. All rights reserved.
@@ -10,47 +9,43 @@
 #include <vector>
 #include <math.h>
 
-#include "ffavbase.h"
-#include "ffavimage.h"
-#include "../3rd/lodepng.h"
+#include "avimage.h"
+#include "lodepng.h"
+#include "avexception.h"
 
-imageRGBA::imageRGBA(int width, int height):
-    w(width), h(height), iBuff(NULL)
+#include <iostream>
+
+
+AVImageRGBA::AVImageRGBA(int width, int height):
+    _width(width), _height(height), iBuff(NULL)
 {
-    iBuff = new uint8_t[w*h*4];
+    size_t size = _width * _height * 4;
+    iBuff = new uint8_t [size];
+    for (int i=0; i<size; i++) {
+        iBuff[i]=0;
+    }
 }
 
-imageRGBA::imageRGBA(const imageRGBA&):
-    w(0), h(0), iBuff(NULL)
-{
-    throw ffavError("imageRGBA: object copy is not allowed");
-}
-
-
-imageRGBA::~imageRGBA()
+AVImageRGBA::~AVImageRGBA()
 {
     delete [] iBuff;
 }
 
-imageRGBA& imageRGBA::operator=(const imageRGBA&)
+void AVImageRGBA::drawPoint(int x, int y, AVPixelRGBA color)
 {
-    throw ffavError("imageRGBA: object copy is not allowed");
-}
-
-void imageRGBA::drawPoint(int x, int y, pixelRGBA color)
-{
-    if (x >= w || y >= h || x < 0 || y < 0)
+    if (x >= _width || y >= _height || x < 0 || y < 0)
     {
+        std::cout << "qweqwe:" << x <<"x"<< y << std::endl;
         return;
     }   
 
-    iBuff[4 * w * y + 4 * x + 0] = color.getR();
-    iBuff[4 * w * y + 4 * x + 1] = color.getG();
-    iBuff[4 * w * y + 4 * x + 2] = color.getB();
-    iBuff[4 * w * y + 4 * x + 3] = color.getA();
+    iBuff[4 * _width * y + 4 * x + 0] = color.getR();
+    iBuff[4 * _width * y + 4 * x + 1] = color.getG();
+    iBuff[4 * _width * y + 4 * x + 2] = color.getB();
+    iBuff[4 * _width * y + 4 * x + 3] = color.getA();
 }
 
-void imageRGBA::drawLine(int x1, int y1, int x2, int y2, pixelRGBA color)
+void AVImageRGBA::drawLine(int x1, int y1, int x2, int y2, AVPixelRGBA color)
 {
     int x=x1, y=y1;
     float k=0, a=0, s;
@@ -81,7 +76,7 @@ void imageRGBA::drawLine(int x1, int y1, int x2, int y2, pixelRGBA color)
         if (abs(x2-x1) > (abs(y2-y1))) 
             s = (x2-x1)/abs(x2-x1);
         else
-            s = (x2-x1)/abs(y2-y1);     
+            s = (x2-x1)/abs(y2-y1);
         
         for (float i=x1; x!=x2; i+=s)
         {
@@ -92,13 +87,13 @@ void imageRGBA::drawLine(int x1, int y1, int x2, int y2, pixelRGBA color)
     }
 }
 
-int imageRGBA::save(char *f_name)
+int AVImageRGBA::save(char *f_name)
 {
     std::vector<uint8_t> buffer;
     LodePNG::Encoder iEnc;
 
     iEnc.getSettings().zlibsettings.windowSize = 2048;
-    iEnc.encode(buffer, iBuff, w, h);
+    iEnc.encode(buffer, iBuff, _width, _height);
     
     LodePNG::saveFile(buffer, f_name);
     
