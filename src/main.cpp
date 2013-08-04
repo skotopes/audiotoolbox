@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "avfile.h"
 #include "avimage.h"
