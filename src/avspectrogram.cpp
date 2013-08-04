@@ -46,9 +46,9 @@ size_t AVSpectrogram::push(float *buffer_ptr, size_t buffer_size) {
         }
 
         if (++_block_current_pos == _block_size) {
-            _low_rms = _low_rms / _low_cnt;
+            _low_rms = _low_rms / _low_cnt / 2;
             _mid_rms = _mid_rms / _mid_cnt;
-            _high_rms = _high_rms / _high_cnt;
+            _high_rms = _high_rms / _high_cnt * 10;
 
             // calculate color
             float maximum = _low_rms;
@@ -142,11 +142,11 @@ void AVSpectrogram::_processDomain() {
     // amplitede
     for(int x = 0; x < n; x++) {
         float value = sqrt(_out_r[x] * _out_r[x] + _out_i[x] * _out_i[x]);
-        if (x > (n * 1500 / 20000)) {
+        if (x > (n * 1000 / 20000)) {
             // high frequency
             _high_rms += value;
             _high_cnt ++;
-        } else if (x > ((float)n * 200 / 20000)) {
+        } else if (x > (n * 80 / 20000)) {
             // mid frequency
             _mid_rms += value;
             _mid_cnt ++;
