@@ -13,8 +13,9 @@ extern "C" {
 
 static volatile bool ffmpeginit = false;
 
-AVFile::AVFile() :
-    formatCtx(0), codecCtx(0), swrCtx(0), audioStream(-1), _io_object(0),
+AVFile::AVFile(int sample_rate, int channels) :
+    formatCtx(0), codecCtx(0), swrCtx(0), audioStream(-1),
+    _io_object(0), _io_sample_rate(sample_rate), _io_channels(channels),
     do_shutdown(false), eof(false), position(0), seek_to(-1)
 {
     if (!ffmpeginit) {
@@ -52,10 +53,10 @@ void AVFile::open(const char *url)
     if (!codecCtx->channel_layout)
         codecCtx->channel_layout = av_get_default_channel_layout(codecCtx->channels);
 
-    // TODO: stream params can be changed on the fly, add moare checks
-    if (codecCtx->channel_layout != av_get_default_channel_layout(2) ||
+    // TODO: stream params can be changed on the fly, add moar checks
+    if (codecCtx->channel_layout != av_get_default_channel_layout(_io_channels) ||
             codecCtx->sample_fmt != AV_SAMPLE_FMT_FLT ||
-            codecCtx->sample_rate != 44100) {
+            codecCtx->sample_rate != _io_sample_rate) {
         allocSWR();
     }
 }
@@ -99,12 +100,20 @@ size_t AVFile::getCodecBitrate() {
     return codecCtx->bit_rate;
 }
 
-size_t AVFile::getCodecSamplerate() {
+int AVFile::getCodecSamplerate() {
     return codecCtx->sample_rate;
 }
 
-size_t AVFile::getCodecChannels() {
+int AVFile::getCodecChannels() {
     return codecCtx->channels;
+}
+
+int AVFile::getIOSamplerate() {
+    return _io_sample_rate;
+}
+
+int AVFile::getIOChannels() {
+    return _io_channels;
 }
 
 AVFile::Progress AVFile::getProgress() {
@@ -163,12 +172,12 @@ void AVFile::decoderLoop(AVObject *io_object)
                         uint8_t *shadow_array[] = { shadow };
                         const uint8_t **input_array = (const uint8_t **)frame.extended_data;
                         // todo: check original code^ some nasty shit inside
-                        int ret = swr_convert(swrCtx, shadow_array, AVCODEC_MAX_AUDIO_FRAME_SIZE, input_array, frame.nb_samples);
+                        int ret = swr_convert(swrCtx, shadow_array, AVCODEC_MAX_AUDIO_FRAME_SIZE, input_array, frame.nb_samples * _io_channels);
                         if (ret > 0) {
-                            fillRing(reinterpret_cast<float *>(shadow), ret*2);
+                            fillRing(reinterpret_cast<float *>(shadow), ret);
                         }
                     } else {
-                        fillRing(reinterpret_cast<float *>(frame.data[0]), frame.nb_samples * 2);
+                        fillRing(reinterpret_cast<float *>(frame.data[0]), frame.nb_samples * _io_channels);
                     }
 
                     // update position
@@ -213,7 +222,7 @@ void AVFile::decoderLoop(AVObject *io_object)
 
 void AVFile::allocSWR()
 {
-    swrCtx = swr_alloc_set_opts(0, av_get_default_channel_layout(2), AV_SAMPLE_FMT_FLT, 44100,
+    swrCtx = swr_alloc_set_opts(0, av_get_default_channel_layout(1), AV_SAMPLE_FMT_FLT, 44100,
                                 codecCtx->channel_layout, codecCtx->sample_fmt, codecCtx->sample_rate,
                                 0, 0);
 

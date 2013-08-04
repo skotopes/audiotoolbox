@@ -13,17 +13,19 @@
 #include "avfile.h"
 #include "avimage.h"
 #include "avhistogram.h"
+#include "avspectrogram.h"
+#include "avsplitter.h"
 #include "avexception.h"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {    
-    int c, width=0, heigh=0;
     bool verbose = false;
-    char *from_file = NULL, *to_file = NULL;
+    int c, width=0, heigh=0;
+    char *from_file=0, *to_histogram=0, *to_spectrogram=0;
     
-    while ((c = getopt (argc, argv, "f:t:w:h:v")) != -1)
+    while ((c = getopt (argc, argv, "f:t:s:w:h:v")) != -1)
         switch (c)
     {
         case 'v':
@@ -33,7 +35,10 @@ int main(int argc, char **argv)
             from_file = optarg;
             break;
         case 't':
-            to_file = optarg;
+            to_histogram = optarg;
+            break;
+        case 's':
+            to_spectrogram = optarg;
             break;
         case 'w':
             width = atoi(optarg);
@@ -41,36 +46,41 @@ int main(int argc, char **argv)
         case 'h':
             heigh = atoi(optarg);
             break;
-            
         default:
-            cout << "Unknown option: "<< c << endl
-            << "From file, To file required" << endl
-            << "-f [filename] -t [filename]" << endl;
+            cout << "Unknown option: "<< c << endl;
             return 1;
     }
     
-    if (from_file == NULL||to_file == NULL) {
+    if (!from_file || !to_histogram || !to_spectrogram) {
         cout << "From file, To file required" << endl
-        << "-f [filename] -t [filename] -w [width] -h [height]" << endl;
+        << "-f [filename] -t [filename] -s [filename] -w [width] -h [height]" << endl;
         return 1;
     }
 
     if (width<2 || heigh <2) {
         cout << "width and/or height is wrong(<2) or absent" << endl
-        << "-f [filename] -t [filename] -w [width] -h [height]" << endl;
+        << "-f [filename] -t [filename] -s [filename] -w [width] -h [height]" << endl;
         return 1;
     }
 
     try {
-        AVFile file;
+        AVFile file(44100, 1);
         file.open(from_file);
 
-        AVImageRGBA image(width, heigh);
+        AVImageRGBA histogram_image(width, heigh);
+        AVImageRGBA spectrogram_image(width, 1);
 
-        AVHistogram histogram(&file, &image);
+        AVHistogram histogram(&file, &histogram_image);
+        AVSpectrogram spectrogram(&file, &spectrogram_image);
 
-        file.decoderLoop(&histogram);
-        image.save(to_file);
+        AVSplitter splitter(2);
+        splitter.addObject(&histogram);
+        splitter.addObject(&spectrogram);
+
+        file.decoderLoop(&splitter);
+
+        histogram_image.save(to_histogram);
+        spectrogram_image.save(to_spectrogram);
 
         if (verbose) {
             cout << argv[0] << endl

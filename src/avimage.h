@@ -44,7 +44,7 @@ public:
 
 private:
     int _width, _height;
-    uint8_t *iBuff;
+    uint8_t *_buffer;
 };
 
 #endif

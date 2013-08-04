@@ -5,6 +5,8 @@ set(audiotoolbox_src
     avcondition.cpp
     avfile.cpp
     avhistogram.cpp
+    avspectrogram.cpp
+    avsplitter.cpp
     avmutex.cpp
     avring.cpp
     avthread.cpp

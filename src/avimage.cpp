@@ -17,18 +17,18 @@
 
 
 AVImageRGBA::AVImageRGBA(int width, int height):
-    _width(width), _height(height), iBuff(NULL)
+    _width(width), _height(height), _buffer(NULL)
 {
     size_t size = _width * _height * 4;
-    iBuff = new uint8_t [size];
+    _buffer = new uint8_t [size];
     for (int i=0; i<size; i++) {
-        iBuff[i]=0;
+        _buffer[i]=0;
     }
 }
 
 AVImageRGBA::~AVImageRGBA()
 {
-    delete [] iBuff;
+    delete [] _buffer;
 }
 
 void AVImageRGBA::drawPoint(int x, int y, AVPixelRGBA color)
@@ -39,10 +39,10 @@ void AVImageRGBA::drawPoint(int x, int y, AVPixelRGBA color)
         return;
     }   
 
-    iBuff[4 * _width * y + 4 * x + 0] = color.getR();
-    iBuff[4 * _width * y + 4 * x + 1] = color.getG();
-    iBuff[4 * _width * y + 4 * x + 2] = color.getB();
-    iBuff[4 * _width * y + 4 * x + 3] = color.getA();
+    _buffer[4 * _width * y + 4 * x + 0] = color.getR();
+    _buffer[4 * _width * y + 4 * x + 1] = color.getG();
+    _buffer[4 * _width * y + 4 * x + 2] = color.getB();
+    _buffer[4 * _width * y + 4 * x + 3] = color.getA();
 }
 
 void AVImageRGBA::drawLine(int x1, int y1, int x2, int y2, AVPixelRGBA color)
@@ -93,7 +93,7 @@ int AVImageRGBA::save(char *f_name)
     LodePNG::Encoder iEnc;
 
     iEnc.getSettings().zlibsettings.windowSize = 2048;
-    iEnc.encode(buffer, iBuff, _width, _height);
+    iEnc.encode(buffer, _buffer, _width, _height);
     
     LodePNG::saveFile(buffer, f_name);
     

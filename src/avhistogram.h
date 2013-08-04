@@ -29,7 +29,6 @@ private:
     AVFile *_file;
     AVImageRGBA *_image;
 
-    int _channels, _audio_length, _height;
     size_t _block_size, _block_current_pos, _block_number, _pos_cnt, _neg_cnt;
     float _pos_peak, _neg_peak, _pos_rms, _neg_rms;
 };

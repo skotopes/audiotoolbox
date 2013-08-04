@@ -19,7 +19,7 @@ public:
         float duration;
     };
 
-    AVFile();
+    AVFile(int sample_rate, int channels);
     virtual ~AVFile();
 
     void open(const char *);
@@ -30,8 +30,10 @@ public:
     float getPosition();
     size_t getBitrate();
     size_t getCodecBitrate();
-    size_t getCodecSamplerate();
-    size_t getCodecChannels();
+    int getCodecSamplerate();
+    int getCodecChannels();
+    int getIOSamplerate();
+    int getIOChannels();
 
     Progress getProgress();
     void seekToPositionPercent(float p);
@@ -47,6 +49,8 @@ private:
     int audioStream;
 
     AVObject *_io_object;
+    int _io_sample_rate;
+    int _io_channels;
 
     volatile bool do_shutdown;
     volatile bool eof;
