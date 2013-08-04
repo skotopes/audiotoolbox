@@ -52,8 +52,8 @@ int main(int argc, char **argv)
             return 1;
     }
     
-    if (!from_file || !to_histogram || !to_spectrogram) {
-        cout << "From file, To file required" << endl
+    if (!from_file || (!to_histogram && !to_spectrogram)) {
+        cout << "From file and one spectrogram or histogram is required" << endl
         << "-f [filename] -t [filename] -s [filename] -w [width] -h [height]" << endl;
         return 1;
     }
@@ -75,13 +75,14 @@ int main(int argc, char **argv)
         AVSpectrogram spectrogram(&file, &spectrogram_image);
 
         AVSplitter splitter(2);
-        splitter.addObject(&histogram);
-        splitter.addObject(&spectrogram);
+
+        if (to_histogram) splitter.addObject(&histogram);
+        if (to_spectrogram) splitter.addObject(&spectrogram);
 
         file.decoderLoop(&splitter);
 
-        histogram_image.save(to_histogram);
-        spectrogram_image.save(to_spectrogram);
+        if (to_histogram) histogram_image.save(to_histogram);
+        if (to_spectrogram) spectrogram_image.save(to_spectrogram);
 
         if (verbose) {
             cout << argv[0] << endl
@@ -92,7 +93,6 @@ int main(int argc, char **argv)
             << "Codec samplerate: " << file.getCodecSamplerate() << endl
             << "Codec channels: " << file.getCodecChannels() << endl;
         }
-
     } catch (AVException &e) {
         cout << e.what();
         return 3;

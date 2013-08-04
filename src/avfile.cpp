@@ -84,7 +84,7 @@ float AVFile::getDurationTime() {
 }
 
 size_t AVFile::getDurationSamples() {
-    return formatCtx->duration * codecCtx->sample_rate / AV_TIME_BASE;
+    return formatCtx->duration * _io_sample_rate / AV_TIME_BASE;
 }
 
 float AVFile::getPosition() {

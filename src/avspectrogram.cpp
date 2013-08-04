@@ -139,7 +139,7 @@ void AVSpectrogram::_processDomain() {
         }
     }
 
-    // amplitede
+    // amplitude
     for(int x = 0; x < n; x++) {
         float value = sqrt(_out_r[x] * _out_r[x] + _out_i[x] * _out_i[x]);
         if (x > (n * 1000 / 20000)) {
