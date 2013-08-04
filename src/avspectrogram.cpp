@@ -58,8 +58,8 @@ size_t AVSpectrogram::push(float *buffer_ptr, size_t buffer_size) {
                 maximum = _high_rms;
             }
 
-            _low_rms = _low_rms / maximum * 255;
-            _mid_rms = _mid_rms / maximum * 255;
+            _low_rms = _low_rms / maximum * 220;
+            _mid_rms = _mid_rms / maximum * 200;
             _high_rms = _high_rms / maximum * 255;
 
             AVPixelRGBA pixel(_low_rms, _mid_rms, _high_rms, 255);
