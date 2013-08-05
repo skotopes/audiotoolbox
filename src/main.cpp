@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     }
 
     if (width<2 || heigh <2) {
-        cout << "width and/or height is wrong(<2) or absent" << endl
+        cout << "width and/or height is wrong (<2) or absent" << endl
         << "-f [filename] -t [filename] -s [filename] -w [width] -h [height]" << endl;
         return 1;
     }

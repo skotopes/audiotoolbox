@@ -12,9 +12,9 @@
 
 #include "avconf.h"
 
-class AVPixelRGBA {
+class AVColorRGBA {
 public:
-    AVPixelRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a):
+    AVColorRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a):
         red(r), green(g), blue(b), alfa(a) {}
 
     inline uint8_t getR() { return red;}
@@ -34,8 +34,8 @@ public:
     AVImageRGBA(const AVImageRGBA&) = delete;
     AVImageRGBA& operator=(const AVImageRGBA&) = delete;
     
-    void drawPoint(int x, int y, AVPixelRGBA color);
-    void drawLine(int x1, int y1, int x2, int y2, AVPixelRGBA color);
+    void drawPoint(int x, int y, AVColorRGBA color);
+    void drawLine(int x1, int y1, int x2, int y2, AVColorRGBA color);
     
     int save(char *f_name);
 

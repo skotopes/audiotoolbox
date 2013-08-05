@@ -31,7 +31,7 @@ AVImageRGBA::~AVImageRGBA()
     delete [] _buffer;
 }
 
-void AVImageRGBA::drawPoint(int x, int y, AVPixelRGBA color)
+void AVImageRGBA::drawPoint(int x, int y, AVColorRGBA color)
 {
     if (x >= _width || y >= _height || x < 0 || y < 0)
     {
@@ -45,7 +45,7 @@ void AVImageRGBA::drawPoint(int x, int y, AVPixelRGBA color)
     _buffer[4 * _width * y + 4 * x + 3] = color.getA();
 }
 
-void AVImageRGBA::drawLine(int x1, int y1, int x2, int y2, AVPixelRGBA color)
+void AVImageRGBA::drawLine(int x1, int y1, int x2, int y2, AVColorRGBA color)
 {
     int x=x1, y=y1;
     float k=0, a=0, s;

@@ -12,9 +12,8 @@
 #include "avfile.h"
 #include "math.h"
 
-const AVPixelRGBA hi_red = AVPixelRGBA (255,0,0,255);
-const AVPixelRGBA mi_red = AVPixelRGBA (255,0,0,190);
-const AVPixelRGBA lo_red = AVPixelRGBA (255,0,0,127);
+const AVColorRGBA hi_red(255,0,0,255);
+const AVColorRGBA lo_red(255,0,0,127);
 
 AVHistogram::AVHistogram(AVFile *file, AVImageRGBA *image):
     _file(file), _image(image),
@@ -79,7 +78,7 @@ size_t AVHistogram::push(float *buffer_ptr, size_t buffer_size) {
             _pos_rms = _neg_rms = 0;
             _pos_cnt = _neg_cnt = 0;
             _block_current_pos = 0;
-            ++_block_number;
+            _block_number++;
         }
     }
     

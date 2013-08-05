@@ -62,14 +62,14 @@ size_t AVSpectrogram::push(float *buffer_ptr, size_t buffer_size) {
             _mid_rms = _mid_rms / maximum * 200;
             _high_rms = _high_rms / maximum * 255;
 
-            AVPixelRGBA pixel(_low_rms, _mid_rms, _high_rms, 255);
+            AVColorRGBA pixel(_low_rms, _mid_rms, _high_rms, 255);
             _image->drawPoint(_block_number, 0, pixel);
 
             // nullify variables
             _low_rms = _mid_rms = _high_rms = 0;
             _low_cnt = _mid_cnt = _high_cnt = 0;
             _block_current_pos = 0;
-            ++_block_number;
+            _block_number++;
         }
     }
 
