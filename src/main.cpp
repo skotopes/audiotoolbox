@@ -18,20 +18,16 @@
 #include "avsplitter.h"
 #include "avexception.h"
 
-using namespace std;
-
 int main(int argc, char **argv)
 {    
-    bool verbose = false;
+    bool verbose=false;
+    float threshold=0;
     int c, width=0, heigh=0;
     char *from_file=0, *to_histogram=0, *to_spectrogram=0;
     
-    while ((c = getopt (argc, argv, "f:t:s:w:h:v")) != -1)
+    while ((c = getopt(argc, argv, "f:t:s:w:h:l:v")) != -1)
         switch (c)
     {
-        case 'v':
-            verbose = true;
-            break;
         case 'f':
             from_file = optarg;
             break;
@@ -47,20 +43,33 @@ int main(int argc, char **argv)
         case 'h':
             heigh = atoi(optarg);
             break;
+        case 'l':
+            threshold = atof(optarg);
+            break;
+        case 'v':
+            verbose = true;
+            break;
         default:
-            cout << "Unknown option: "<< c << endl;
+            std::cerr << "Unknown option: "<< c << std::endl;
             return 1;
     }
     
     if (!from_file || (!to_histogram && !to_spectrogram)) {
-        cout << "From file and one spectrogram or histogram is required" << endl
-        << "-f [filename] -t [filename] -s [filename] -w [width] -h [height]" << endl;
+        std::cerr
+            << "From file and spectrogram or histogram is required" << std::endl
+            << "-f [source] -t [histogram] -s [spectrogram] -w [width] -h [height] -l [threshold] -v" << std::endl;
         return 1;
     }
 
-    if (width<2 || heigh <2) {
-        cout << "width and/or height is wrong (<2) or absent" << endl
-        << "-f [filename] -t [filename] -s [filename] -w [width] -h [height]" << endl;
+    if (width<2 || (to_histogram && heigh <2)) {
+        std::cerr
+                << "width and/or height is wrong (<2) or absent." << std::endl;
+        return 1;
+    }
+
+    if (threshold > 0) {
+        std::cerr
+                << "logarithmic mode threshold can not be higher then 0." << std::endl;
         return 1;
     }
 
@@ -71,8 +80,8 @@ int main(int argc, char **argv)
         AVImageRGBA histogram_image(width, heigh);
         AVImageRGBA spectrogram_image(width, 1);
 
-        AVHistogram histogram(&file, &histogram_image);
-        AVSpectrogram spectrogram(&file, &spectrogram_image);
+        AVHistogram histogram(&file, &histogram_image, threshold);
+        AVSpectrogram spectrogram(&file, &spectrogram_image, threshold);
 
         AVSplitter splitter(2);
 
@@ -85,16 +94,18 @@ int main(int argc, char **argv)
         if (to_spectrogram) spectrogram_image.save(to_spectrogram);
 
         if (verbose) {
-            cout << argv[0] << endl
-            << "Duration(sec): " << file.getDurationTime() << endl
-            << "Duration(samples): " << file.getDurationSamples() << endl
-            << "Format bitrate: " << file.getBitrate() << endl
-            << "Codec bitrate: " << file.getCodecBitrate() << endl
-            << "Codec samplerate: " << file.getCodecSamplerate() << endl
-            << "Codec channels: " << file.getCodecChannels() << endl;
+            std::cout
+                << argv[0] << std::endl
+                << "Duration(sec): " << file.getDurationTime() << std::endl
+                << "Duration(samples): " << file.getDurationSamples() << std::endl
+                << "Format bitrate: " << file.getBitrate() << std::endl
+                << "Codec bitrate: " << file.getCodecBitrate() << std::endl
+                << "Codec samplerate: " << file.getCodecSamplerate() << std::endl
+                << "Codec channels: " << file.getCodecChannels() << std::endl;
         }
     } catch (AVException &e) {
-        cout << e.what();
+        std::cerr
+            << "Operation failed because of: " << e.what() << std::endl;
         return 3;
     }
 

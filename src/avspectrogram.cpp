@@ -6,10 +6,10 @@
 
 #include "iostream"
 
-#define FFT_WINDOW_SIZE 2048
+#define FFT_WINDOW_SIZE 4096
 
-AVSpectrogram::AVSpectrogram(AVFile *file, AVImageRGBA *image):
-    _file(file), _image(image),
+AVSpectrogram::AVSpectrogram(AVFile *file, AVImageRGBA *image, float threshold):
+    _file(file), _image(image), _threshold(threshold),
     _in_r(0), _in_i(0), _out_r(0), _out_i(0),
     _cnt(0),
     _block_size(0), _block_current_pos(0), _block_number(0),
@@ -35,9 +35,7 @@ size_t AVSpectrogram::push(float *buffer_ptr, size_t buffer_size) {
     size_t to_consume=buffer_size;
 
     while (to_consume-- > 0) {
-        _in_r[_cnt] = *buffer_ptr++;  // yes i understand what i'm doing
-        // * got higher priority then ++
-
+        _in_r[_cnt] = *buffer_ptr++;
         _out_r[_cnt] = _out_i[_cnt] = _in_i[_cnt] = 0;
 
         if (++_cnt == FFT_WINDOW_SIZE) {
@@ -46,24 +44,11 @@ size_t AVSpectrogram::push(float *buffer_ptr, size_t buffer_size) {
         }
 
         if (++_block_current_pos == _block_size) {
-            _low_rms = _low_rms / _low_cnt / 2;
-            _mid_rms = _mid_rms / _mid_cnt;
-            _high_rms = _high_rms / _high_cnt * 10;
-
-            // calculate color
-            float maximum = _low_rms;
-            if (_mid_rms > maximum) {
-                maximum = _mid_rms;
-            } else if (_high_rms > maximum) {
-                maximum = _high_rms;
+            if (_threshold != 0.0f) {
+                _commitBlockDb();
+            } else {
+                _commitBlockLinear();
             }
-
-            _low_rms = _low_rms / maximum * 220;
-            _mid_rms = _mid_rms / maximum * 200;
-            _high_rms = _high_rms / maximum * 255;
-
-            AVColorRGBA pixel(_low_rms, _mid_rms, _high_rms, 255);
-            _image->drawPoint(_block_number, 0, pixel);
 
             // nullify variables
             _low_rms = _mid_rms = _high_rms = 0;
@@ -140,20 +125,75 @@ void AVSpectrogram::_processDomain() {
     }
 
     // amplitude
-    for(int x = 0; x < n; x++) {
-        float value = sqrt(_out_r[x] * _out_r[x] + _out_i[x] * _out_i[x]);
-        if (x > (n * 1000 / 20000)) {
+    for (int x = 0; x < n; x++) {
+        float magnitude = sqrt(_out_r[x] * _out_r[x] + _out_i[x] * _out_i[x]) / n;
+        float frequencie = (float)x * 44100 / n;
+        if (frequencie > 22050.0f || frequencie < 20.0f)
+            continue;
+
+        if (frequencie > 1500.0f) {
             // high frequency
-            _high_rms += value;
+            _high_rms += magnitude;
             _high_cnt ++;
-        } else if (x > (n * 80 / 20000)) {
+        } else if (frequencie > 120.0f) {
             // mid frequency
-            _mid_rms += value;
+            _mid_rms += magnitude;
             _mid_cnt ++;
         } else {
             // low frequency
-            _low_rms += value;
+            _low_rms += magnitude;
             _low_cnt ++;
         }
     }
+}
+
+void AVSpectrogram::_commitBlockDb() {
+    _low_rms = 10 * log10f(_low_rms / _low_cnt);
+    _mid_rms = 10 * log10f(_mid_rms / _mid_cnt);
+    _high_rms = 10 * log10f(_high_rms / _high_cnt);
+
+    if (_low_rms > _threshold) {
+        _low_rms = (_low_rms - _threshold) / - _threshold;
+    } else {
+        _low_rms = 0;
+    }
+
+    if (_mid_rms > _threshold) {
+        _mid_rms = (_mid_rms - _threshold) / - _threshold;
+    } else {
+        _mid_rms = 0;
+    }
+
+    if (_high_rms > _threshold) {
+        _high_rms = (_high_rms - _threshold) / - _threshold;
+    } else {
+        _high_rms = 0;
+    }
+
+    _low_rms = _low_rms * 255;
+    _mid_rms = _mid_rms * 255;
+    _high_rms = _high_rms * 255;
+
+    AVColorRGBA pixel(_low_rms, _mid_rms, _high_rms, 255);
+    _image->drawPoint(_block_number, 0, pixel);
+}
+
+void AVSpectrogram::_commitBlockLinear() {
+    _low_rms = _low_rms / _low_cnt / 2;
+    _mid_rms = _mid_rms / _mid_cnt;
+    _high_rms = _high_rms / _high_cnt * 10;
+
+    float maximum = _low_rms;
+    if (_mid_rms > maximum) {
+        maximum = _mid_rms;
+    } else if (_high_rms > maximum) {
+        maximum = _high_rms;
+    }
+
+    _low_rms = _low_rms / maximum * 220;
+    _mid_rms = _mid_rms / maximum * 200;
+    _high_rms = _high_rms / maximum * 255;
+
+    AVColorRGBA pixel(_low_rms, _mid_rms, _high_rms, 255);
+    _image->drawPoint(_block_number, 0, pixel);
 }

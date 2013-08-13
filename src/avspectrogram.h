@@ -9,7 +9,7 @@ class AVImageRGBA;
 class AVSpectrogram : public AVObject
 {
 public:
-    AVSpectrogram(AVFile *file, AVImageRGBA *image);
+    AVSpectrogram(AVFile *file, AVImageRGBA *image, float threshold=0);
     virtual ~AVSpectrogram();
 
     const char * getName() { return "AVSpectrogram"; }
@@ -21,6 +21,7 @@ private:
     AVFile *_file;
     AVImageRGBA *_image;
 
+    float _threshold;
     float *_in_r, *_in_i, *_out_r, *_out_i;
     size_t _cnt;
 
@@ -29,6 +30,8 @@ private:
     float _low_rms, _mid_rms, _high_rms;
 
     void _processDomain();
+    void _commitBlockDb();
+    void _commitBlockLinear();
 };
 
 #endif // AVSPECTROGRAM_H

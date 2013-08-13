@@ -35,7 +35,7 @@ void AVImageRGBA::drawPoint(int x, int y, AVColorRGBA color)
 {
     if (x >= _width || y >= _height || x < 0 || y < 0)
     {
-        std::cout << "qweqwe:" << x <<"x"<< y << std::endl;
+        std::cerr << "Invalid position x:" << x <<" y:"<< y << std::endl;
         return;
     }   
 

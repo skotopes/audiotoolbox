@@ -17,7 +17,7 @@ class AVFile;
 
 class AVHistogram : public AVObject {
 public:
-    AVHistogram(AVFile *file, AVImageRGBA *image);
+    AVHistogram(AVFile *file, AVImageRGBA *image, float threshold=0);
     virtual ~AVHistogram();
 
     const char * getName() { return "AVHistogram"; }
@@ -29,8 +29,12 @@ private:
     AVFile *_file;
     AVImageRGBA *_image;
 
+    float _threshold;
     size_t _block_size, _block_current_pos, _block_number, _pos_cnt, _neg_cnt;
     float _pos_peak, _neg_peak, _pos_rms, _neg_rms;
+
+    void _commitBlockDb();
+    void _commitBlockLinear();
 };
 
 #endif
