@@ -2,21 +2,21 @@ About
 ============
 
 Audiotoolbox is a console utility which allows you to generate histograms and spectrograms for audio files.
-It uses ffmpeg libraries and able to eat all modern media formats (including audio from videos).
+It uses ffmpeg libraries and able to eat all modern media formats (including audio streams in video containers).
 Also it's quite fast: 6 minutes of mp3 audio can be processed in 3 seconds on 2,7 GHz mobile core i7.
 
 There are 2 processing modules which i've completed:
 
 - avhistogram: generates histogram image with requested width and height. Resulting image contains two layers. First layer is peaks, second layer is RMS. 
-- avspectrogram: generates spectrogram image with requested width and height equal to 1. It performs FFT, then splicing frequencies domain into 3 parts: low(red), mid(green), high(blue).
+- avspectrogram: generates spectrogram image with requested width and height equal to 1. It performs FFT, then splicing frequencies domain into 3 parts: 20 to 120 Hz - low (red), 120 to 1500 Hz mid(green), 1500 to 22050 Hz high(blue).
 
 Each processing module support 2 different arithmetic models: 
 
 - linear(default) - actually semi-linear, original samples is passed throw the sqrt. Simplest and the most common from of representation. Spectrograms in this mode will use relative brightness for each computed block. False colors will be used to improve spectrogram readability.
-- logarithmic - professional one. All computations will performed strictly by audio standards. Spectrograms in this mode will have absolute brightness. Threshold level which you passing throw the command line will be used 
+- logarithmic - professional one. All computations will performed strictly by audio standards. Spectrograms in this mode will have absolute brightness. Threshold level which you passing throw the command line will be used as scale.
 
 You can switch to logarithmic mode by passing -l [threshold_level] to application. 
-Please keep in mind that level is not in dbSPL. So normally you will want to use -96/-64/etc.
+Please keep in mind that level is not in dbSPL. So normally you will want to use something that lower than 0, for example: -96/-64/etc.
 
 Compiling
 ============
