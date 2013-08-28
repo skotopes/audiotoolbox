@@ -1,12 +1,3 @@
-///*
-// *  re_histogram.cpp
-// *  recoded
-// *
-// *  Created by Alexandr Kutuzov on 19.01.10.
-// *  Copyright 2010 WhiteLabel ltd. All rights reserved.
-// *
-// */
-
 #include "avhistogram.h"
 #include "avimage.h"
 #include "avfile.h"

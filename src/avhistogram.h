@@ -1,12 +1,3 @@
-/*
- *  re_histogram.h
- *  recoded
- *
- *  Created by Alexandr Kutuzov on 19.01.10.
- *  Copyright 2010 WhiteLabel ltd. All rights reserved.
- *
- */
-
 #ifndef AVHISTOGRAM_H
 #define AVHISTOGRAM_H
 

@@ -18,6 +18,8 @@ Each processing module support 2 different arithmetic models:
 You can switch to logarithmic mode by passing -l [threshold_level] to application. 
 Please keep in mind that level is not in dbSPL. So normally you will want to use something that lower than 0, for example: -96/-64/etc.
 
+Also you can generate combo image which will contain histogram shaped spectrogram.
+
 Compiling
 ============
 
@@ -37,20 +39,22 @@ Usage
 
 All options:
 
-	-f [filename] 	- source audio file
-	-t [filename]	- histogram output file
-	-s [filename]	- spectrogram output file
-	-w [integer]	- histogram and spectrogram width
-	-h [integer]	- histogram height
-	-l [float]		- switches processing into db mode and sets threshold level
-	-v 				- verbose output
+    -h,    --help                  Show this help message
+    -v,    --verbose               Show debug information
+           --width=INT             Set histogram/spectrogram/combo width
+           --height=INT            Set histogram/combo height
+           --input=FILE            Input audio to process
+           --histogram=FILE        Output histogram
+           --spectrogram=FILE      Output spectrogram
+           --combo=FILE            Output combo image: histogram shaped spectrogram
+           --threshold=FLOAT       If specified will switch processing mode to logarithmic
 
 Examples:
 
-    audiotoolbox -f media_file.mp3 -t histogram.png -w 2000 -h 200
-    audiotoolbox -f media_file.mp3 -s spectrogram.png -w 2000
-    audiotoolbox -f media_file.mp3 -t histogram.png -s spectrogram.png -w 2000 -h 200
-    audiotoolbox -f media_file.mp3 -t histogram.png -s spectrogram.png -w 2000 -h 200 -l -64 -v
+    audiotoolbox --input=media_file.mp3 --combo=combo.png --width=2000 --height=200
+    audiotoolbox --input=media_file.mp3 --histogram=histogram.png --width=2000 --height=200
+    audiotoolbox --input=media_file.mp3 --spectrogram=spectrogram.png --with=2000
+    audiotoolbox --input=media_file.mp3 --histogram=histogram.png --spectrogram=spectrogram.png --combo=combo.png --with=2000 --height=200 -threshold=-64 -v
 
 Limitations
 ============
@@ -63,5 +67,5 @@ There are several small things that you need to keep in mind, especially if you 
 License
 ============
 
-All code which was written by me is GPLv3. 
+All code which was written by me is GPLv3.
 Contact me if you want to use this application in commercial products with different license.

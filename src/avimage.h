@@ -1,12 +1,3 @@
-/*
- *  image.h
- *  histogramd
- *
- *  Created by Alexandr Kutuzov on 26.01.10.
- *  Copyright 2010 White Label ltd. All rights reserved.
- *
- */
-
 #ifndef AVIMAGE_H
 #define AVIMAGE_H
 
