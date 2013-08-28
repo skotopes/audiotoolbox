@@ -19,4 +19,24 @@ endif()
 
 set(CMAKE_CXX_FLAGS_INIT "-std=c++11")
 
-add_subdirectory(src)
+ADD_DEFINITIONS(-D__STDC_CONSTANT_MACROS)
+
+set(audiotoolbox_src
+    src/avobject.cpp
+    src/avcondition.cpp
+    src/avfile.cpp
+    src/avhistogram.cpp
+    src/avspectrogram.cpp
+    src/avsplitter.cpp
+    src/avmutex.cpp
+    src/avring.cpp
+    src/avthread.cpp
+    src/avimage.cpp
+    src/lodepng.cpp
+    src/audiotoolbox.cpp
+    src/main.cpp
+)
+
+add_executable(audiotoolbox ${audiotoolbox_src})
+target_link_libraries(audiotoolbox avformat avcodec avutil swresample m pthread)
+
