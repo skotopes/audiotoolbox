@@ -8,7 +8,7 @@ Also it's quite fast: 6 minutes of mp3 audio can be processed in 3 seconds on 2,
 There are 2 processing modules which i've completed:
 
 - avhistogram: generates histogram image with requested width and height. Resulting image contains two layers. First layer is peaks, second layer is RMS. 
-- avspectrogram: generates spectrogram image with requested width and height equal to 1. It performs FFT, then splicing frequencies domain into 3 parts: 20 to 120 Hz - low (red), 120 to 1500 Hz mid(green), 1500 to 22050 Hz high(blue).
+- avspectrogram: generates spectrogram image with requested width and height equal to 1. It performs FFT, then slicing frequencies domain into 3 parts: 20 to 120 Hz - low (red), 120 to 1500 Hz mid(green), 1500 to 22050 Hz high(blue).
 
 Each processing module support 2 different arithmetic models: 
 
