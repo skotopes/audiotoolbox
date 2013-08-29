@@ -87,25 +87,27 @@ void AVImageRGBA::drawLine(int x1, int y1, int x2, int y2, AVColorRGBA color)
     }
 }
 
-void AVImageRGBA::tileImage(AVImageRGBA &image) {
+void AVImageRGBA::tileImage(AVImageRGBA *image) {
     for (size_t x=0; x < _width; x++) {
         for (size_t y=0; y < _height; y++) {
             size_t ix, iy;
-            ix = x % image._width;
-            iy = y % image._height;
-            drawPoint(x, y, image.getPoint(ix, iy));
+            ix = x % image->_width;
+            iy = y % image->_height;
+
+            drawPoint(x, y, image->getPoint(ix, iy));
         }
     }
 }
 
-void AVImageRGBA::applyMask(AVImageRGBA &image) {
+void AVImageRGBA::applyMask(AVImageRGBA *image) {
     for (size_t x=0; x < _width; x++) {
         for (size_t y=0; y < _height; y++) {
             size_t ix, iy;
-            ix = x % image._width;
-            iy = y % image._height;
+            ix = x % image->_width;
+            iy = y % image->_height;
+
             AVColorRGBA s = getPoint(ix, iy);
-            AVColorRGBA m = image.getPoint(ix, iy);
+            AVColorRGBA m = image->getPoint(ix, iy);
             s.setA(m.getA());
 
             drawPoint(x, y, s);

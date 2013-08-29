@@ -14,17 +14,28 @@ AudioToolbox::AudioToolbox(int argc, char **argv):
     _argc(argc), _argv(argv),
     _verbose(false), _threshold(0),
     _width(0), _height(0),
-    _input(0), _histogram(0), _spectrogram(0), _combo(0)
+    _input_filename(0), _histogram_filename(0), _spectrogram_filename(0), _combo_filename(0),
+    _input(0), _splitter(0),
+    _spectrogram_image(0), _histogram_image(0), _combo_image(0),
+    _histogram(0), _spectrogram(0)
 {
 
 }
 
 AudioToolbox::~AudioToolbox() {
+    delete _input;
 
+    delete _spectrogram_image;
+    delete _histogram_image;
+    delete _combo_image;
+
+    delete _histogram;
+    delete _spectrogram;
+    delete _splitter;
 }
 
 int AudioToolbox::run() {
-    static struct option longopts[] = {
+    option longopts[] = {
         { "help",           no_argument,        0,  'h' },
         { "verbose",        no_argument,        0,  'v' },
         { "width",          required_argument,  0,  1 },
@@ -47,16 +58,16 @@ int AudioToolbox::run() {
             _height = atoi(optarg);
             break;
         case 3:
-            _input = optarg;
+            _input_filename = optarg;
             break;
         case 4:
-            _histogram = optarg;
+            _histogram_filename = optarg;
             break;
         case 5:
-            _spectrogram = optarg;
+            _spectrogram_filename = optarg;
             break;
         case 6:
-            _combo = optarg;
+            _combo_filename = optarg;
             break;
         case 7:
             _threshold = atof(optarg);
@@ -73,12 +84,12 @@ int AudioToolbox::run() {
         }
     }
 
-    if (!_input) {
+    if (!_input_filename) {
         std::cerr << "Input file is not specified" << std::endl;
         return 1;
     }
 
-    if (!_histogram && !_spectrogram && !_combo) {
+    if (!_histogram_filename && !_spectrogram_filename && !_combo_filename) {
         std::cerr << "You need to specify at least one output: spectrogram | histogram | combo" << std::endl;
         return 1;
     }
@@ -91,57 +102,85 @@ int AudioToolbox::run() {
         return 1;
     }
 
-    if ((_histogram || _combo) && !_height) {
+    if ((_histogram_filename || _combo_filename) && !_height) {
         std::cerr << "Height is not specified" << std::endl;
         return 1;
-    } else if ((_histogram || _combo) && _height < 2) {
+    } else if ((_histogram_filename || _combo_filename) && _height < 2) {
         std::cerr << "Height must be greater than 2" << std::endl;
         return 1;
     }
 
     try {
-        AVFile file(44100, 1);
-        file.open(_input);
+        _log("Opening input file");
+        _input = new AVFile(44100, 1);
+        _input->open(_input_filename);
 
-        AVImageRGBA histogram_image(_width, _height);
-        AVImageRGBA spectrogram_image(_width, 1);
-        AVImageRGBA combo_image(_width, _height);
+        _log("Preparing stream splitter");
+        _splitter = new AVSplitter(2);
 
-        AVHistogram histogram(&file, &histogram_image, _threshold);
-        AVSpectrogram spectrogram(&file, &spectrogram_image, _threshold);
-
-        AVSplitter splitter(2);
-
-        if (_histogram || _combo) splitter.addObject(&histogram);
-        if (_spectrogram || _combo) splitter.addObject(&spectrogram);
-
-        file.decoderLoop(&splitter);
-
-        if (_histogram) histogram_image.save(_histogram);
-        if (_spectrogram) spectrogram_image.save(_spectrogram);
-
-        if (_combo) {
-            combo_image.tileImage(spectrogram_image);
-            combo_image.applyMask(histogram_image);
-            combo_image.save(_combo);
+        if (_histogram_filename || _combo_filename) {
+            _log("Adding histogram processing module");
+            _histogram_image = new AVImageRGBA(_width, _height);
+            _histogram = new AVHistogram(_input, _histogram_image, _threshold);
+            _splitter->addObject(_histogram);
         }
 
-        if (_verbose) {
-            std::cout
-                << _argv[0] << std::endl
-                << "Duration(sec): " << file.getDurationTime() << std::endl
-                << "Duration(samples): " << file.getDurationSamples() << std::endl
-                << "Format bitrate: " << file.getBitrate() << std::endl
-                << "Codec bitrate: " << file.getCodecBitrate() << std::endl
-                << "Codec samplerate: " << file.getCodecSamplerate() << std::endl
-                << "Codec channels: " << file.getCodecChannels() << std::endl;
+        if (_spectrogram_filename || _combo_filename) {
+            _log("Adding spectrogram processing module");
+            _spectrogram_image = new AVImageRGBA(_width, 1);
+            _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold);
+            _splitter->addObject(_spectrogram);
         }
+
+        _log("Processing data");
+        _input->decoderLoop(_splitter);
+
+        if (_histogram_filename) {
+            _log("Saving histogram");
+            _histogram_image->save(_histogram_filename);
+        }
+
+        if (_spectrogram_filename) {
+            _log("Saving spectrogram");
+            _spectrogram_image->save(_spectrogram_filename);
+        }
+
+        if (_combo_filename) {
+            _log("Preparing combo file");
+            _combo_image = new AVImageRGBA(_width, _height);
+            _combo_image->tileImage(_spectrogram_image);
+            _combo_image->applyMask(_histogram_image);
+
+            _log("Saving combo file");
+            _combo_image->save(_combo_filename);
+        }
+
+        _report();
     } catch (AVException &e) {
         std::cerr << "Operation failed because of: " << e.what() << std::endl;
         return 2;
     }
 
     return 0;
+}
+
+void AudioToolbox::_log(const char *message) {
+    if (_verbose) std::cout << message << std::endl;
+}
+
+void AudioToolbox::_report() {
+    if (_verbose) {
+        std::cout
+            << std::endl
+            << "Input file info" << std::endl
+            << "===============" << std::endl
+            << "Duration(sec):      " << _input->getDurationTime() << std::endl
+            << "Duration(samples):  " << _input->getDurationSamples() << std::endl
+            << "Format bitrate:     " << _input->getBitrate() << std::endl
+            << "Codec bitrate:      " << _input->getCodecBitrate() << std::endl
+            << "Codec samplerate:   " << _input->getCodecSamplerate() << std::endl
+            << "Codec channels:     " << _input->getCodecChannels() << std::endl;
+    }
 }
 
 void AudioToolbox::_showUsage() {

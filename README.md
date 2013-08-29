@@ -2,34 +2,34 @@ About
 ============
 
 Audiotoolbox is a console utility which allows you to generate histograms and spectrograms for audio files.
-It uses ffmpeg libraries and able to eat all modern media formats (including audio streams in video containers).
-Also it's quite fast: 6 minutes of mp3 audio can be processed in 3 seconds on 2,7 GHz mobile core i7.
+It uses ffmpeg libraries and is able to eat all modern media formats (including audio streams in video containers).
+Also it's quite fast: 6 minutes of mp3 audio can be processed in 3 seconds on a 2.7 GHz mobile core i7.
 
-There are 2 processing modules which i've completed:
+There are 2 processing modules which I've completed:
 
-- avhistogram: generates histogram image with requested width and height. Resulting image contains two layers. First layer is peaks, second layer is RMS. 
-- avspectrogram: generates spectrogram image with requested width and height equal to 1. It performs FFT, then slicing frequencies domain into 3 parts: 20 to 120 Hz - low (red), 120 to 1500 Hz mid(green), 1500 to 22050 Hz high(blue).
+- avhistogram: generates a histogram image with the requested width and height. The resulting image contains two layers. The first layer is peaks, the second layer is RMS. 
+- avspectrogram: generates a spectrogram image with the requested width and height equal to 1. It performs FFT, then slicing frequencies domain into 3 parts: 20 to 120 Hz - low (red), 120 to 1500 Hz mid(green), 1500 to 22050 Hz high(blue).
 
-Each processing module support 2 different arithmetic models: 
+Each processing module supports 2 different arithmetic models: 
 
-- linear(default) - actually semi-linear, original samples is passed throw the sqrt. Simplest and the most common from of representation. Spectrograms in this mode will use relative brightness for each computed block. False colors will be used to improve spectrogram readability.
-- logarithmic - professional one. All computations will performed strictly by audio standards. Spectrograms in this mode will have absolute brightness. Threshold level which you passing throw the command line will be used as scale.
+- linear(default) - actually semi-linear, the original sample is passed through the sqrt. This is the simplest and the most common form of representation. Spectrograms in this mode will use relative brightness for each computed block. False colors will be used to improve spectrogram readability.
+- logarithmic - professional. All computations will be performed strictly by audio standards. Spectrograms in this mode will have absolute brightness. The threshold level which you passing through the command line will be used as a scale.
 
-You can switch to logarithmic mode by passing -l [threshold_level] to application. 
-Please keep in mind that level is not in dbSPL. So normally you will want to use something that lower than 0, for example: -96/-64/etc.
+You can switch to the logarithmic mode by passing -l [threshold_level] to application. 
+Please keep in mind that the level is not in dbSPL. So normally you will want to use something that is lower than 0, for example: -96/-64/etc.
 
-Also you can generate combo image which will contain histogram shaped spectrogram.
+Also you can generate a combo image which will contain a histogram shaped spectrogram.
 
 Compiling
 ============
 
-You will need to install this dependencies:
+You will need to install these dependencies:
 
 - cmake
 - c++ compiler that support c++11 (clang or gcc is working well)
-- ffmpeg (avcodec, avformat, avutils) (i'm using 1.2.1, so keep in mind that it may or may not work with newer versions)
+- ffmpeg (avcodec, avformat, avutils) (I'm using 1.2.1, so keep in mind that it may or may not work with newer versions)
 
-Compilation process is quite simple, run following commands:
+The compilation process is quite simple, run the following commands:
 
     cmake .
     make
@@ -47,7 +47,7 @@ All options:
            --histogram=FILE        Output histogram
            --spectrogram=FILE      Output spectrogram
            --combo=FILE            Output combo image: histogram shaped spectrogram
-           --threshold=FLOAT       If specified will switch processing mode to logarithmic
+           --threshold=FLOAT       If specified, it will switch processing mode to logarithmic
 
 Examples:
 
@@ -59,13 +59,13 @@ Examples:
 Limitations
 ============
 
-There are several small things that you need to keep in mind, especially if you using this tool in professional area:
+There are several small things that you need to keep in mind, especially if you using this tool in the professional area:
 
-- Spectrogram generator uses simplest FFT implementation, zero crossing block aligning or noise filtering is not implemented.
-- In some cases last block can be skipped due to incomplete data.
+- The spectrogram generator uses simplest FFT implementation, zero crossing block aligning or noise filtering is not implemented.
+- In some cases, the last block can be skipped due to incomplete data.
 
 License
 ============
 
 All code which was written by me is GPLv3.
-Contact me if you want to use this application in commercial products with different license.
+Contact me if you want to use this application in commercial products with a different license.

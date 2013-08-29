@@ -37,8 +37,8 @@ public:
     void drawPoint(int x, int y, AVColorRGBA color);
     void drawLine(int x1, int y1, int x2, int y2, AVColorRGBA color);
 
-    void tileImage(AVImageRGBA &image);
-    void applyMask(AVImageRGBA &image);
+    void tileImage(AVImageRGBA *image);
+    void applyMask(AVImageRGBA *image);
 
     void save(char *f_name);
 

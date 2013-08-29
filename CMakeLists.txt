@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 include(CheckIncludeFileCXX)
 project(audiotoolbox CXX)
+set(CMAKE_CXX_FLAGS "-std=c++11 -Wall")
 
 check_include_file_cxx("libavformat/avformat.h" HAVE_AVFORMAT)
 if (NOT ${HAVE_AVFORMAT})
@@ -16,10 +17,6 @@ check_include_file_cxx("libavutil/avutil.h" HAVE_AVUTIL)
 if (NOT ${HAVE_AVUTIL})
     message(FATAL_ERROR "Could not find libavutil.")
 endif()
-
-set(CMAKE_CXX_FLAGS_INIT "-std=c++11")
-
-ADD_DEFINITIONS(-D__STDC_CONSTANT_MACROS)
 
 set(audiotoolbox_src
     src/avobject.cpp

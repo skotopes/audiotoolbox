@@ -795,7 +795,12 @@ unsigned lodepng_huffman_code_lengths(unsigned* lengths, const unsigned* frequen
     coinmem = numpresent * 2; /*max amount of coins needed with the current algo*/
     coins = (Coin*)lodepng_malloc(sizeof(Coin) * coinmem);
     prev_row = (Coin*)lodepng_malloc(sizeof(Coin) * coinmem);
-    if(!coins || !prev_row) return 83; /*alloc fail*/
+    if(!coins || !prev_row) {
+        /*alloc fail*/
+        lodepng_free(coins);
+        lodepng_free(prev_row);
+        return 83;
+    }
     init_coins(coins, coinmem);
     init_coins(prev_row, coinmem);
 
@@ -6168,8 +6173,8 @@ unsigned decode(std::vector<unsigned char>& out, unsigned& w, unsigned& h,
   {
     size_t buffersize = lodepng_get_raw_size(w, h, &state.info_raw);
     out.insert(out.end(), &buffer[0], &buffer[buffersize]);
-    lodepng_free(buffer);
   }
+  lodepng_free(buffer);
   return error;
 }
 
