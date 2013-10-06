@@ -109,8 +109,8 @@ void AVHistogram::_commitBlockLinear() {
     _neg_peak = sqrtf(_neg_peak) * height;
 
     // Block RMS value
-    _pos_rms = sqrtf(sqrtf(_pos_rms/_pos_cnt)) * height;
-    _neg_rms = sqrtf(sqrtf(_neg_rms/_neg_cnt)) * height;
+    _pos_rms = _pos_cnt ? sqrtf(sqrtf(_pos_rms/_pos_cnt)) * height : 0;
+    _neg_rms = _neg_cnt ? sqrtf(sqrtf(_neg_rms/_neg_cnt)) * height : 0;
 
     // Draw peaks
     _image->drawLine(
