@@ -1,7 +1,9 @@
 cmake_minimum_required (VERSION 2.6)
 include(CheckIncludeFileCXX)
 project(audiotoolbox CXX)
+
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wall")
+add_definitions(-D__STDC_CONSTANT_MACROS)
 
 check_include_file_cxx("libavformat/avformat.h" HAVE_AVFORMAT)
 if (NOT ${HAVE_AVFORMAT})
@@ -36,4 +38,3 @@ set(audiotoolbox_src
 
 add_executable(audiotoolbox ${audiotoolbox_src})
 target_link_libraries(audiotoolbox avformat avcodec avutil swresample m pthread)
-
