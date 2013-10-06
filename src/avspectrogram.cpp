@@ -8,8 +8,8 @@
 
 #define FFT_WINDOW_SIZE 4096
 
-AVSpectrogram::AVSpectrogram(AVFile *file, AVImageRGBA *image, float threshold):
-    _file(file), _image(image), _threshold(threshold),
+AVSpectrogram::AVSpectrogram(AVFile *file, AVImageRGBA *image, float threshold, WindowType window_type):
+    _file(file), _image(image), _threshold(threshold), _window_type(window_type),
     _in_r(0), _in_i(0), _out_r(0), _out_i(0),
     _cnt(0),
     _block_size(0), _block_current_pos(0), _block_number(0),
@@ -62,17 +62,73 @@ size_t AVSpectrogram::push(float *buffer_ptr, size_t buffer_size) {
 }
 
 void AVSpectrogram::_processDomain() {
-    int n = FFT_WINDOW_SIZE;
-    bool inverse = 1;
+    switch (_window_type) {
+    case Hann:
+        _windowHann();
+        break;
+    case Hamming:
+        _windowHamming();
+        break;
+    case Blackman:
+        _windowBlackman();
+        break;
+    case BlackmanHarris:
+        _windowBlackmanHarris();
+        break;
+    default:
+        break;
+    }
 
-    //Calculate m=log_2(n)
+    _fft();
+    _postProcess();
+}
+
+void AVSpectrogram::_windowHann() {
+    for (int x = 0; x < FFT_WINDOW_SIZE; x++) {
+        _in_r[x] = _in_r[x] * (0.5 -
+                               0.5 * cos(2 * M_PI * x / (FFT_WINDOW_SIZE - 1))
+                               );
+    }
+}
+
+void AVSpectrogram::_windowHamming() {
+    for (int x = 0; x < FFT_WINDOW_SIZE; x++) {
+        _in_r[x] = _in_r[x] * (0.54 -
+                               0.46 * cos(2 * M_PI * x / (FFT_WINDOW_SIZE - 1))
+                               );
+    }
+}
+
+void AVSpectrogram::_windowBlackman() {
+    for (int x = 0; x < FFT_WINDOW_SIZE; x++) {
+        _in_r[x] = _in_r[x] * (0.42659 -
+                               0.49656 * cos(2 * M_PI * x / (FFT_WINDOW_SIZE - 1)) +
+                               0.07685 * cos(4 * M_PI * x / (FFT_WINDOW_SIZE - 1))
+                               );
+    }
+}
+
+void AVSpectrogram::_windowBlackmanHarris() {
+    for (int x = 0; x < FFT_WINDOW_SIZE; x++) {
+        _in_r[x] = _in_r[x] * (0.35875 -
+                               0.48829 * cos(2 * M_PI * x / (FFT_WINDOW_SIZE - 1)) +
+                               0.14128 * cos(4 * M_PI * x / (FFT_WINDOW_SIZE - 1)) -
+                               0.01168 * cos(6 * M_PI * x / (FFT_WINDOW_SIZE - 1))
+                               );
+    }
+}
+
+void AVSpectrogram::_fft(bool inverse) {
+    int n = FFT_WINDOW_SIZE;
+
+    // Calculate m=log_2(n)
     int m=0, p=1;
     while(p < n) {
         p *= 2;
         m++;
     }
 
-    //Bit reversal
+    // Bit reversal
     _out_r[n - 1] = _in_r[n - 1];
     _out_i[n - 1] = _in_i[n - 1];
     int j = 0;
@@ -87,7 +143,7 @@ void AVSpectrogram::_processDomain() {
         j += k;
     }
 
-    //Calculate the FFT
+    // Calculate the FFT
     double ca = -1.0;
     double sa = 0.0;
     int l1 = 1, l2 = 1;
@@ -115,7 +171,7 @@ void AVSpectrogram::_processDomain() {
         ca = sqrt((1.0 + ca) / 2.0);
     }
 
-    //Divide through n if it isn't the IDFT
+    // Divide through n if it isn't the IDFT
     if(!inverse) {
         for(int i = 0; i < n; i++)
         {
@@ -123,11 +179,13 @@ void AVSpectrogram::_processDomain() {
             _out_i[i] /= n;
         }
     }
+}
 
+void AVSpectrogram::_postProcess() {
     // amplitude
-    for (int x = 0; x < n; x++) {
-        float magnitude = sqrt(_out_r[x] * _out_r[x] + _out_i[x] * _out_i[x]) / n;
-        float frequencie = (float)x * 44100 / n;
+    for (int x = 0; x < FFT_WINDOW_SIZE; x++) {
+        float magnitude = sqrt(_out_r[x] * _out_r[x] + _out_i[x] * _out_i[x]) / FFT_WINDOW_SIZE;
+        float frequencie = (float)x * 44100 / FFT_WINDOW_SIZE;
         if (frequencie > 22050.0f || frequencie < 20.0f)
             continue;
 

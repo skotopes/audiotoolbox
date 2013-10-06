@@ -26,6 +26,8 @@ private:
     char            *_spectrogram_filename;
     char            *_combo_filename;
 
+    char            *_window_name;
+
     AVFile          *_input;
     AVSplitter      *_splitter;
 

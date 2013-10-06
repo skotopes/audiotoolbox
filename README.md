@@ -48,21 +48,14 @@ All options:
            --spectrogram=FILE      Output spectrogram
            --combo=FILE            Output combo image: histogram shaped spectrogram
            --threshold=FLOAT       If specified, it will switch processing mode to logarithmic
+           --window=STRING         Use specific FFT window type. Can be: hann, hamming, blackman, blackmanharris
 
 Examples:
 
     audiotoolbox --input=media_file.mp3 --combo=combo.png --width=2000 --height=200
     audiotoolbox --input=media_file.mp3 --histogram=histogram.png --width=2000 --height=200
     audiotoolbox --input=media_file.mp3 --spectrogram=spectrogram.png --with=2000
-    audiotoolbox --input=media_file.mp3 --histogram=histogram.png --spectrogram=spectrogram.png --combo=combo.png --with=2000 --height=200 -threshold=-64 -v
-
-Limitations
-============
-
-There are several small things that you need to keep in mind, especially if you using this tool in the professional area:
-
-- The spectrogram generator uses simplest FFT implementation, zero crossing block aligning or noise filtering is not implemented.
-- In some cases, the last block can be skipped due to incomplete data.
+    audiotoolbox --input=media_file.mp3 --histogram=histogram.png --spectrogram=spectrogram.png --combo=combo.png --with=2000 --height=200 -threshold=-64 --window=blackmanharris -v
 
 License
 ============

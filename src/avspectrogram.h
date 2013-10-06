@@ -9,7 +9,15 @@ class AVImageRGBA;
 class AVSpectrogram : public AVObject
 {
 public:
-    AVSpectrogram(AVFile *file, AVImageRGBA *image, float threshold=0);
+    enum WindowType {
+        Square,
+        Hann,
+        Hamming,
+        Blackman,
+        BlackmanHarris
+    };
+
+    AVSpectrogram(AVFile *file, AVImageRGBA *image, float threshold=0, WindowType window_type=Square);
     virtual ~AVSpectrogram();
 
     const char * getName() { return "AVSpectrogram"; }
@@ -22,6 +30,8 @@ private:
     AVImageRGBA *_image;
 
     float _threshold;
+    WindowType _window_type;
+
     float *_in_r, *_in_i, *_out_r, *_out_i;
     size_t _cnt;
 
@@ -30,6 +40,15 @@ private:
     float _low_rms, _mid_rms, _high_rms;
 
     void _processDomain();
+
+    void _windowHann();
+    void _windowHamming();
+    void _windowBlackman();
+    void _windowBlackmanHarris();
+
+    void _fft(bool inverse=false);
+    void _postProcess();
+
     void _commitBlockDb();
     void _commitBlockLinear();
 };

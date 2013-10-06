@@ -15,6 +15,7 @@ AudioToolbox::AudioToolbox(int argc, char **argv):
     _verbose(false), _threshold(0),
     _width(0), _height(0),
     _input_filename(0), _histogram_filename(0), _spectrogram_filename(0), _combo_filename(0),
+    _window_name(0),
     _input(0), _splitter(0),
     _spectrogram_image(0), _histogram_image(0), _combo_image(0),
     _histogram(0), _spectrogram(0)
@@ -45,6 +46,7 @@ int AudioToolbox::run() {
         { "spectrogram",    required_argument,  0,  5 },
         { "combo",          required_argument,  0,  6 },
         { "threshold",      required_argument,  0,  7 },
+        { "window",         required_argument,  0,  8 },
         { 0,                0,                  0,  0 }
     };
 
@@ -71,6 +73,9 @@ int AudioToolbox::run() {
             break;
         case 7:
             _threshold = atof(optarg);
+            break;
+        case 8:
+            _window_name = optarg;
             break;
         case 'v':
             _verbose = true;
@@ -128,7 +133,19 @@ int AudioToolbox::run() {
         if (_spectrogram_filename || _combo_filename) {
             _log("Adding spectrogram processing module");
             _spectrogram_image = new AVImageRGBA(_width, 1);
-            _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold);
+
+            if (strcmp(_window_name, "hann") == 0) {
+                _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::Hann);
+            } else if (strcmp(_window_name, "hamming") == 0) {
+                _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::Hamming);
+            } else if (strcmp(_window_name, "blackman") == 0) {
+                _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::Blackman);
+            } else if (strcmp(_window_name, "blackmanharris") == 0) {
+                _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::BlackmanHarris);
+            } else {
+                _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold);
+            }
+
             _splitter->addObject(_spectrogram);
         }
 
@@ -198,6 +215,7 @@ void AudioToolbox::_showUsage() {
         << "        --spectrogram=FILE      Output spectrogram" << std::endl
         << "        --combo=FILE            Output combo image: histogram shaped spectrogram" << std::endl
         << "        --threshold=FLOAT       If specified will switch processing mode to logarithmic" << std::endl
+        << "        --window=STRING         Use specific FFT window type. Can be: hann, hamming, blackman, blackmanharris" << std::endl
         << std::endl
         << "This software is licensed under GPLv3." << std::endl
         << "Copyright (C) 2008-2013 by aku <alleteam@gmail.com>." << std::endl;
