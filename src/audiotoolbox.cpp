@@ -134,15 +134,17 @@ int AudioToolbox::run() {
             _log("Adding spectrogram processing module");
             _spectrogram_image = new AVImageRGBA(_width, 1);
 
-            if (strcmp(_window_name, "hann") == 0) {
-                _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::Hann);
-            } else if (strcmp(_window_name, "hamming") == 0) {
-                _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::Hamming);
-            } else if (strcmp(_window_name, "blackman") == 0) {
-                _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::Blackman);
-            } else if (strcmp(_window_name, "blackmanharris") == 0) {
-                _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::BlackmanHarris);
-            } else {
+            if (_window_name) {
+                if (strcmp(_window_name, "hann") == 0) {
+                    _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::Hann);
+                } else if (strcmp(_window_name, "hamming") == 0) {
+                    _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::Hamming);
+                } else if (strcmp(_window_name, "blackman") == 0) {
+                    _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::Blackman);
+                } else if (strcmp(_window_name, "blackmanharris") == 0) {
+                    _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold, AVSpectrogram::BlackmanHarris);
+                }
+            }else {
                 _spectrogram = new AVSpectrogram(_input, _spectrogram_image, _threshold);
             }
 
