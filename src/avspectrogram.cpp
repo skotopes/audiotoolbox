@@ -244,7 +244,8 @@ void AVSpectrogram::_commitBlockLinear() {
     float maximum = _low_rms;
     if (_mid_rms > maximum) {
         maximum = _mid_rms;
-    } else if (_high_rms > maximum) {
+    }
+    if (_high_rms > maximum) {
         maximum = _high_rms;
     }
 
